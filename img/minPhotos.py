@@ -19,19 +19,15 @@ def getListFiles(path):
     # 已经有的文件夹
     has_dirs = []
     # 目录创建
+    # 暂时有一个文件夹下多文件 读取问题没 解决 dirs files均为列表  已经解决
     for root, dirs, files in os.walk(path):
         # print('%s, %s, %s' % (root, dirs, files))
         # print('%s, %s' % (dirs,files))
         s = ''.join(root) + '/' + ''.join(dirs)
-        s = s.replace('\\', '/')
-        # s = s.replace(source_dirs, target_path)
         if s not in has_dirs:
             has_dirs.append(s)
         if path == source_dirs:
             create_dirs(has_dirs)
-        # print(s)
-        # if not os.path.exists(s):
-        #    os.makedirs(s)
         for filesPath in files:
             ret.append(os.path.join(root, filesPath))
     # print(ret)
@@ -57,11 +53,11 @@ def scale(i):
     bb = i.replace(source_dirs, target_dirs2)
     bb = bb.replace('\\', '/')
     width, height = img.size
-    w_s = int(width / (width/800))  # 长宽缩小两倍
-    h_s = int(height / (height/400))  # 长宽缩小两倍
+    w_s = int(width / (width / 800))  # 长宽缩小两倍
+    h_s = int(height / (height / 400))  # 长宽缩小两倍
     img = img.resize((w_s, h_s), Image.ANTIALIAS)
     blank = (w_s - h_s) / 2
-    #region = img.crop((0, -blank, w_s, w_s - blank))
+    # region = img.crop((0, -blank, w_s, w_s - blank))
     region = img.crop((0, 0, w_s, h_s))
     region.save(bb)
 
@@ -89,6 +85,32 @@ def resize(i):
     region.save(bb)
 
 
+# 拼接为链接
+def join_url(utl_txt, lst):
+    file = utl_txt
+    for i in lst:
+        i = i.replace('./', '/')
+        i = i.replace('\\', '/')
+        i1 = i.replace('max', 'mid')
+        i2 = i.replace('max', 'min')
+        with open(file, 'a+') as f:
+            with open(file, 'r') as f1:
+                url = 'https://cdn.jsdelivr.net/gh/runrab/cdn2@master/img' + i + '\n'
+                if url not in f1.readlines():
+                    f.write(url)
+        with open(r"mid.txt", 'a+') as f:
+            with open(r"mid.txt", 'r') as f1:
+                url = 'https://cdn.jsdelivr.net/gh/runrab/cdn2@master/img' + i2 + '\n'
+                if url not in f1.readlines():
+                    f.write(url)
+        with open(r"min.txt", 'a+') as f:
+            with open(r"min.txt", 'r') as f1:
+                url = 'https://cdn.jsdelivr.net/gh/runrab/cdn2@master/img' + i2 + '\n'
+                if url not in f1.readlines():
+                    f.write(url)
+
+
+# 处理
 def declImg():
     a = getListFiles(source_dirs)
     b = getListFiles(target_dirs)
@@ -100,24 +122,11 @@ def declImg():
         if i not in c:
             c.append(i)
             scale(i)
+    join_url(r"max.txt", a)
 
 
 declImg()
 
-##图片缩小
-
-
 '''
 #导出require.txt
-#pip freeze > requirements.txt
-img = Image.open('01.jpg')
-width, height = img.size
-
-# 前两个坐标点是左上角坐标
-# 后两个坐标点是右下角坐标
-# width在前， height在后
-box = (100, 100, 550, 350)
-
-region = img.crop(box)
-region.save('crop.jpg')
 '''
